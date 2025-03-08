@@ -11,11 +11,11 @@ app.use(cors({
         console.log("Request Origin:", origin);
         if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
-        } else {
+        } else { 
             console.log("Blocked by CORS:", origin);
             callback(new Error("Not allowed by CORS"));
         }
-    },
+    }, 
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type"]
 }));

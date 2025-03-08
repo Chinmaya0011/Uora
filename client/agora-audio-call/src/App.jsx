@@ -5,7 +5,7 @@ import { FaPhoneAlt, FaPhoneSlash, FaUser } from "react-icons/fa";
 import "./App.css";
 
 const appId = "b29d0c64188a4498ae36dedad6737555"; // Your Agora App ID
-const apiBaseUrl = "https://uora.onrender.com//api"; // Your backend API URL
+const apiBaseUrl = "https://uora.onrender.com/api"; // Your backend API URL
 
 const client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
 
