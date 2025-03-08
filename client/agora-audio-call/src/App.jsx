@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import AgoraRTC from "agora-rtc-sdk-ng";
 import axios from "axios";
-import { FaPhoneAlt, FaPhoneSlash, FaUser } from "react-icons/fa"; // Import icons from react-icons
-import "./App.css"
-const appId = "b29d0c64188a4498ae36dedad6737555"; // Replace with your Agora App ID
-const apiBaseUrl = "https://uora.onrender.com/api"; // Your backend API
+import { FaPhoneAlt, FaPhoneSlash, FaUser } from "react-icons/fa";
+import "./App.css";
+
+const appId = "b29d0c64188a4498ae36dedad6737555"; // Your Agora App ID
+const apiBaseUrl = "https://uora.onrender.com/api"; // Your backend API URL
 
 const client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
 
@@ -12,21 +13,23 @@ function App() {
     const [channelName, setChannelName] = useState("Chinmaya");
     const [joined, setJoined] = useState(false);
     const [localAudioTrack, setLocalAudioTrack] = useState(null);
+    const [remoteUsers, setRemoteUsers] = useState([]);
 
     useEffect(() => {
-        // Handle remote user events
         client.on("user-published", async (user, mediaType) => {
             await client.subscribe(user, mediaType);
             console.log("New user joined:", user);
 
-            if (mediaType === "audio") {
+            if (mediaType === "audio" && user.audioTrack) {
                 console.log("Playing remote user's audio");
-                user.audioTrack.play(); // Play remote audio only
+                user.audioTrack.play();
+                setRemoteUsers((prevUsers) => [...prevUsers, user]);
             }
         });
 
         client.on("user-left", (user) => {
             console.log("User left:", user);
+            setRemoteUsers((prevUsers) => prevUsers.filter((u) => u.uid !== user.uid));
         });
 
         return () => {
@@ -34,7 +37,6 @@ function App() {
         };
     }, []);
 
-    // Join Call
     const joinCall = async () => {
         if (!channelName) {
             alert("Please enter a channel name!");
@@ -42,18 +44,18 @@ function App() {
         }
 
         try {
-            // Fetch the token from backend
             const response = await axios.get(`${apiBaseUrl}/token?channelName=${channelName}`);
             const { token, uid } = response.data;
 
-            // Join the Agora channel
             await client.join(appId, channelName, token, uid);
 
             const audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
             setLocalAudioTrack(audioTrack);
 
-            // Publish local audio but don’t play it locally
+            // Publish and play your own audio
             await client.publish([audioTrack]);
+            audioTrack.play();
+
             setJoined(true);
             console.log(`Joined channel: ${channelName}`);
         } catch (error) {
@@ -62,14 +64,19 @@ function App() {
         }
     };
 
-    // Leave Call
     const leaveCall = async () => {
         if (localAudioTrack) {
             localAudioTrack.stop();
             localAudioTrack.close();
         }
+
+        remoteUsers.forEach((user) => {
+            user.audioTrack?.stop();
+        });
+
         await client.leave();
         setJoined(false);
+        setRemoteUsers([]);
         console.log("Left the channel");
     };
 

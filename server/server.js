@@ -1,11 +1,15 @@
 const express = require('express');
-const cors = require('cors'); // Import CORS
+const cors = require('cors'); 
 const app = express();
 const port = 3000;
 const tokenRoutes = require("./routes/agora");
 
-// Use CORS middleware
-app.use(cors());
+// Use CORS middleware with specific origin
+app.use(cors({
+    origin: "https://uora.vercel.app",
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type"]
+}));
 
 app.get('/', (req, res) => {
     res.json("Hello World");
