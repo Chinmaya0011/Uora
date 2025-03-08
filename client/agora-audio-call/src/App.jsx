@@ -4,7 +4,7 @@ import axios from "axios";
 import { FaPhoneAlt, FaPhoneSlash, FaUser } from "react-icons/fa"; // Import icons from react-icons
 import "./App.css"
 const appId = "b29d0c64188a4498ae36dedad6737555"; // Replace with your Agora App ID
-const apiBaseUrl = "http://localhost:3000/api"; // Your backend API
+const apiBaseUrl = "https://uora.onrender.com/api"; // Your backend API
 
 const client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
 
