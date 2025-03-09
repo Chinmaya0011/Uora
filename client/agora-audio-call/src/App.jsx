@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import AgoraRTC from "agora-rtc-sdk-ng";
 import axios from "axios";
-import { FaPhoneAlt, FaPhoneSlash, FaUser } from "react-icons/fa";
+import { FaVideo, FaVideoSlash, FaMicrophone, FaMicrophoneSlash, FaUser } from "react-icons/fa";
 import "./App.css";
 
 const appId = "b29d0c64188a4498ae36dedad6737555"; // Your Agora App ID
@@ -12,28 +12,45 @@ const client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
 function App() {
     const [channelName, setChannelName] = useState("Chinmaya");
     const [joined, setJoined] = useState(false);
-    const [localAudioTrack, setLocalAudioTrack] = useState(null);
+    const [localTracks, setLocalTracks] = useState({ audio: null, video: null });
     const [remoteUsers, setRemoteUsers] = useState([]);
+    const [isVideoEnabled, setIsVideoEnabled] = useState(true);
+    const [isAudioEnabled, setIsAudioEnabled] = useState(true);
 
     useEffect(() => {
-        client.on("user-published", async (user, mediaType) => {
+        const handleUserPublished = async (user, mediaType) => {
             await client.subscribe(user, mediaType);
             console.log("New user joined:", user);
 
-            if (mediaType === "audio" && user.audioTrack) {
-                console.log("Playing remote user's audio");
-                user.audioTrack.play();
-                setRemoteUsers((prevUsers) => [...prevUsers, user]);
+            if (mediaType === "video") {
+                const remoteVideoContainer = document.getElementById(`remote-video-${user.uid}`);
+                if (remoteVideoContainer && !remoteVideoContainer.querySelector("video")) {
+                    user.videoTrack.play(`remote-video-${user.uid}`);
+                }
             }
-        });
+            if (mediaType === "audio") {
+                user.audioTrack.play();
+            }
 
-        client.on("user-left", (user) => {
+            setRemoteUsers((prevUsers) => {
+                if (!prevUsers.some((u) => u.uid === user.uid)) {
+                    return [...prevUsers, user];
+                }
+                return prevUsers;
+            });
+        };
+
+        const handleUserLeft = (user) => {
             console.log("User left:", user);
             setRemoteUsers((prevUsers) => prevUsers.filter((u) => u.uid !== user.uid));
-        });
+        };
+
+        client.on("user-published", handleUserPublished);
+        client.on("user-left", handleUserLeft);
 
         return () => {
-            client.removeAllListeners();
+            client.off("user-published", handleUserPublished);
+            client.off("user-left", handleUserLeft);
         };
     }, []);
 
@@ -49,12 +66,15 @@ function App() {
 
             await client.join(appId, channelName, token, uid);
 
-            const audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-            setLocalAudioTrack(audioTrack);
+            const [audioTrack, videoTrack] = await AgoraRTC.createMicrophoneAndCameraTracks();
+            setLocalTracks({ audio: audioTrack, video: videoTrack });
 
-            // Publish and play your own audio
-            await client.publish([audioTrack]);
-            // audioTrack.play();
+            await client.publish([audioTrack, videoTrack]);
+
+            const localVideoContainer = document.getElementById("local-video");
+            if (localVideoContainer && !localVideoContainer.querySelector("video")) {
+                videoTrack.play("local-video");
+            }
 
             setJoined(true);
             console.log(`Joined channel: ${channelName}`);
@@ -65,24 +85,40 @@ function App() {
     };
 
     const leaveCall = async () => {
-        if (localAudioTrack) {
-            localAudioTrack.stop();
-            localAudioTrack.close();
-        }
+        if (localTracks.audio) localTracks.audio.close();
+        if (localTracks.video) localTracks.video.close();
 
         remoteUsers.forEach((user) => {
             user.audioTrack?.stop();
+            user.videoTrack?.stop();
         });
 
         await client.leave();
         setJoined(false);
         setRemoteUsers([]);
+        setLocalTracks({ audio: null, video: null });
+        setIsVideoEnabled(true);
+        setIsAudioEnabled(true);
         console.log("Left the channel");
+    };
+
+    const toggleVideo = () => {
+        if (localTracks.video) {
+            localTracks.video.setEnabled(!isVideoEnabled);
+            setIsVideoEnabled((prev) => !prev);
+        }
+    };
+
+    const toggleAudio = () => {
+        if (localTracks.audio) {
+            localTracks.audio.setEnabled(!isAudioEnabled);
+            setIsAudioEnabled((prev) => !prev);
+        }
     };
 
     return (
         <div className="container">
-            <h1>Agora Audio Call</h1>
+            <h1>Agora Video Call</h1>
             <div className="input-container">
                 <FaUser className="icon" />
                 <input
@@ -92,14 +128,30 @@ function App() {
                     onChange={(e) => setChannelName(e.target.value)}
                 />
             </div>
+            <div className="video-container">
+                <div id="local-video" className="video-box local-video">Local Video</div>
+                {remoteUsers.map((user) => (
+                    <div key={user.uid} id={`remote-video-${user.uid}`} className="video-box remote-video">
+                        Remote Video - {user.uid}
+                    </div>
+                ))}
+            </div>
             {!joined ? (
                 <button className="join-button" onClick={joinCall}>
-                    <FaPhoneAlt className="button-icon" /> Join Call
+                    <FaVideo className="button-icon" /> Join Call
                 </button>
             ) : (
-                <button className="leave-button" onClick={leaveCall}>
-                    <FaPhoneSlash className="button-icon" /> Leave Call
-                </button>
+                <div className="controls">
+                    <button className="leave-button" onClick={leaveCall}>
+                        <FaVideoSlash className="button-icon" /> Leave Call
+                    </button>
+                    <button className="toggle-button" onClick={toggleVideo}>
+                        {isVideoEnabled ? <FaVideoSlash /> : <FaVideo />} {isVideoEnabled ? "Turn Off Video" : "Turn On Video"}
+                    </button>
+                    <button className="toggle-button" onClick={toggleAudio}>
+                        {isAudioEnabled ? <FaMicrophoneSlash /> : <FaMicrophone />} {isAudioEnabled ? "Mute" : "Unmute"}
+                    </button>
+                </div>
             )}
         </div>
     );

@@ -1,144 +1,119 @@
-/* App.css */
-
-/* Basic reset */
-* {
+body {
+  font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Arial', sans-serif;
-  background: linear-gradient(135deg, #74EBD5 0%, #9FACE6 100%);
+  background-color: #f4f4f9;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  padding: 20px;
-  perspective: 1000px;
 }
 
 .container {
-  background: #fff;
-  padding: 20px;
-  border-radius: 20px;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-  width: 100%;
-  max-width: 500px;
   text-align: center;
-  transform-style: preserve-3d;
-  animation: floatAnimation 3s ease-in-out infinite;
-  transition: transform 0.3s ease;
-}
-
-.container:hover {
-  transform: rotateY(10deg) rotateX(10deg);
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 1200px;
 }
 
 h1 {
   margin-bottom: 20px;
   color: #333;
-  font-size: 28px;
-  text-transform: uppercase;
-  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
-  letter-spacing: 2px;
 }
 
 .input-container {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px;
-  border: 2px solid #9FACE6;
-  border-radius: 12px;
+  justify-content: center;
   margin-bottom: 20px;
-  background: linear-gradient(145deg, #e6e6e6, #ffffff);
-  box-shadow: 3px 3px 6px #b8b8b8, -3px -3px 6px #ffffff;
+}
+
+.input-container input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-left: 10px;
+  width: 200px;
 }
 
 .icon {
-  color: #9FACE6;
-  font-size: 24px;
+  font-size: 20px;
+  color: #555;
 }
 
-input {
-  flex: 1;
-  padding: 12px;
-  border: none;
-  outline: none;
-  font-size: 16px;
-  border-radius: 8px;
-  box-shadow: inset 3px 3px 6px #d1d1d1, inset -3px -3px 6px #ffffff;
+.video-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.video-box {
+  background-color: #000;
+  border-radius: 10px;
+  overflow: hidden;
+  width: 45%;
+  height: 300px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  font-size: 18px;
+  position: relative;
+}
+
+.local-video {
+  border: 2px solid #007bff;
+}
+
+.remote-video {
+  border: 2px solid #28a745;
+}
+
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
 }
 
 button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: #007bff;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 14px 24px;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  font-size: 18px;
-  font-weight: bold;
-  transition: 0.3s ease;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  gap: 5px;
 }
 
-.join-button {
-  background: linear-gradient(145deg, #4CAF50, #3e8e41);
-  color: #fff;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-}
-
-.join-button:hover {
-  background: linear-gradient(145deg, #45a049, #368b3b);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 255, 0, 0.4);
+button:hover {
+  background-color: #0056b3;
 }
 
 .leave-button {
-  background: linear-gradient(145deg, #FF4B4B, #c43d3d);
-  color: #fff;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  background-color: #dc3545;
 }
 
 .leave-button:hover {
-  background: linear-gradient(145deg, #e63b3b, #b83636);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(255, 0, 0, 0.4);
+  background-color: #c82333;
+}
+
+.toggle-button {
+  background-color: #ffc107;
+  color: #000;
+}
+
+.toggle-button:hover {
+  background-color: #e0a800;
 }
 
 .button-icon {
-  font-size: 22px;
-}
-
-/* Floating animation */
-@keyframes floatAnimation {
-  0% {
-      transform: translateY(0);
-  }
-  50% {
-      transform: translateY(-10px);
-  }
-  100% {
-      transform: translateY(0);
-  }
-}
-
-/* Add responsiveness */
-@media (max-width: 600px) {
-  .container {
-      padding: 15px;
-  }
-
-  h1 {
-      font-size: 22px;
-  }
-
-  button {
-      font-size: 16px;
-      padding: 12px;
-  }
+  font-size: 18px;
 }
